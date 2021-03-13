@@ -59,6 +59,8 @@ public:
   void rightToLeft();
   void createChar(int, byte[]);
 
+  uint8_t readKeys();
+
   // plus functions from LCDAPI:
   void clear(); // same as init()
   void setBacklight(int brightness);
@@ -81,6 +83,7 @@ private:
   void _send(int value, bool isData = false);
   void _sendNibble(int halfByte, bool isData = false);
   void _write2Wire(int halfByte, bool isData, bool enable);
+  void _setButtons();
 };
 
 #endif

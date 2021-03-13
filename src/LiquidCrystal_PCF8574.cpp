@@ -236,6 +236,14 @@ void LiquidCrystal_PCF8574::createChar(int location, byte charmap[])
   }
 } // createChar()
 
+// READ KEYS
+
+uint8_t LiquidCrystal_PCF8574::readKeys() {
+  _setButtons();    // set as inputs
+  Wire.requestFrom(_i2cAddr, 1);
+  return (Wire.read());
+}
+
 
 /* The write function is needed for derivation from the Print class. */
 inline size_t LiquidCrystal_PCF8574::write(uint8_t ch)
@@ -274,7 +282,8 @@ void LiquidCrystal_PCF8574::_write2Wire(int halfByte, bool isData, bool enable)
   int i2cData = halfByte << 4;
   if (isData)
     i2cData |= PCF_RS;
-  // PCF_RW is never used.
+  // PCF_RW is used for keys. Set it high so the keys don't interfere with the LCD data lines
+    i2cData |= PCF_RW;
   if (enable)
     i2cData |= PCF_EN;
   if (_backlight > 0)
@@ -283,6 +292,21 @@ void LiquidCrystal_PCF8574::_write2Wire(int halfByte, bool isData, bool enable)
   Wire.beginTransmission(_i2cAddr);
   Wire.write(i2cData);
   Wire.endTransmission();
+
 } // write2Wire
+
+void LiquidCrystal_PCF8574::_setButtons(void) {
+  uint8_t i2cData;
+
+  // PCF_RW is used for keys. Set it LOW to read em
+    //i2cData &= PCF_RW;
+
+  if (_backlight > 0)
+    i2cData |= PCF_BACKLIGHT;
+  i2cData |=0xF0;
+  Wire.beginTransmission(_i2cAddr);
+  Wire.write(0xF8);
+  Wire.endTransmission();
+}
 
 // The End.
